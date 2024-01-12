@@ -1,10 +1,14 @@
 # scyllaU
 
-Scripts and files used while going through Scylla University free training.  
+Scripts and files used while going through Scylla University free training.  These all use docker containers.
 
 ## Scripts  
 
-Foo
+`./cloud.sh <addr>` : shell into scylla trial cloud cluster  
+`./run.sh`          : starts a single container scylla.  works on Linux and MacOS   
+`./cluster.sh`      : creates a 3 node scylla cluster.  only works on Linux  
+`./cql.sh <node>`   : cqlsh into a node. nodes are scyllaU1, scyllaU2 and scyllaU3  
+`./stop.sh`         : stop all scylla container nodes
 
 ## Sample Output
 
