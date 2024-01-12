@@ -2,9 +2,10 @@
 
 set -eou pipefail
 
+[ "$(uname)" == "Linux" ] || ( >&2 echo "Does not work on $(uname) use Linux" && exit 1)
+
 # https://sort.veritas.com/public/documents/HSO/2.0/linux/productguides/html/hfo_admin_ubuntu/ch04s03.htm
 echo "setting fs.aio-max-nr to greater than 65536 ..."
-# sudo sysctl -a | grep aio
 sudo sysctl -a | grep fs.aio-max-nr
 sudo sysctl -w fs.aio-max-nr=1048576
 
