@@ -2,9 +2,15 @@
 
 set -eou pipefail
 
+# https://sort.veritas.com/public/documents/HSO/2.0/linux/productguides/html/hfo_admin_ubuntu/ch04s03.htm
+echo "setting fs.aio-max-nr to greater than 65536 ..."
+# sudo sysctl -a | grep aio
+sudo sysctl -a | grep fs.aio-max-nr
+sudo sysctl -w fs.aio-max-nr=1048576
+
+# does not work on macos.  11k was the highest allowed
 # https://forum.scylladb.com/t/running-3-node-scylladb-in-docker/1057
-sysctl -a | grep aio
-sysctl -w kern.aiomax=1048576
+# sudo sysctl -w kern.aiomax=1048576
 # sudo sysctl kern.aiomax=11000
 # sysctl -a | grep aio
 
