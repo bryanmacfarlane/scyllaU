@@ -1,4 +1,17 @@
-# scyllaU
+```bash
+
+
+   _____            _ _       _____  ____  
+  / ____|          | | |     |  __ \|  _ \ 
+ | (___   ___ _   _| | | __ _| |  | | |_) |
+  \___ \ / __| | | | | |/ _` | |  | |  _ < 
+  ____) | (__| |_| | | | (_| | |__| | |_) |
+ |_____/ \___|\__, |_|_|\__,_|_____/|____/ 
+               __/ |                       
+              |___/                        
+
+
+```
 
 Scripts and files used while going through Scylla University free training.  These all use docker containers.
 
