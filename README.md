@@ -24,12 +24,19 @@ $ ops/cluster cqlsh
 cqlsh>
 ```
 
-#### Create the schema
-
-From a shell inside a node 
+Jump into a bash shell
 
 ```bash
-root@scyllaU1:/# ./scripts/exec.sh create
+ops/cluster bash
+bash-5.1$
+```
+
+#### Create the schema
+
+From a bash shell inside a node 
+
+```bash
+root@scyllaU1:/# scripts/exec create
 
 Running /scripts/create.cql on scyllaU1 ...
 

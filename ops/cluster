@@ -1,7 +1,8 @@
 #!/bin/bash
 set -eou pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_DIR="$(realpath "${OPS_DIR}/../scripts")"
 
 # For Development, Use --reactor-backend=epoll: For development environments on macOS, consider using the –reactor-backend=epoll option when starting ScyllaDB in Docker. This can be necessary because the default linux-aio backend might not function as expected on macOS
 # https://docs.scylladb.com/manual/stable/operating-scylla/procedures/tips/best-practices-scylla-on-docker.html
@@ -81,11 +82,11 @@ run() {
     echo "  network: ${DOCKER_NETWORK}"
     if [ -z "${SEED_IP}" ]; then
         # the first node
-        docker run -p ${HOST_PORT}:9042 --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -v "${SCRIPT_DIR}:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}"
+        docker run -p ${HOST_PORT}:9042 --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -v "${SCRIPTS_DIR}:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}"
         # docker run --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -h "$CURR_NAME" -v "$(pwd)/scripts:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}" #--overprovisioned 1 --smp 1
     else
         echo "  seeds: ${SEED_IP}"
-        docker run --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -h "$CURR_NAME" -v "$(pwd)/scripts:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}" --seeds="${SEED_IP}" #--overprovisioned 1 --smp 1
+        docker run --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -h "$CURR_NAME" -v "${SCRIPTS_DIR}:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}" --seeds="${SEED_IP}" #--overprovisioned 1 --smp 1
     fi
 
     checkNode "${CURR_NAME}"
@@ -146,6 +147,10 @@ cqlsh() {
     docker exec -it scyllaU1 cqlsh
 }
 
+bash() {
+    docker exec -it scyllaU1 bash
+}
+
 action=$1
 case $action in
   up)
@@ -156,5 +161,8 @@ case $action in
   ;;
   cqlsh)
     cqlsh
+  ;;
+  bash)
+    bash
   ;;
 esac
