@@ -1,0 +1,5 @@
+#!/bin/bash
+set -eou pipefail
+
+docker system prune -f 
+docker system prune -f --volumes
