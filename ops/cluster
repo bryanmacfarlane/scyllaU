@@ -8,6 +8,9 @@ SCRIPTS_DIR="$(realpath "${OPS_DIR}/../scripts")"
 # https://docs.scylladb.com/manual/stable/operating-scylla/procedures/tips/best-practices-scylla-on-docker.html
 # https://hub.docker.com/r/scylladb/scylla
 
+# https://forums.docker.com/t/how-to-turn-off-the-whats-new-message/140860/7
+export DOCKER_CLI_HINTS=false
+
 SCYLLA_NAME=scyllaU
 SCYLLA_BACKEND=default
 DOCKER_PLATFORM="linux/amd64"

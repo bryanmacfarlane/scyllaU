@@ -1,0 +1,14 @@
+#!/bin/bash 
+
+# Run
+# Run a script from the host against the ScyllaDB cluster
+# Usage: ./scripts/run <script-name>
+
+set -euo pipefail
+
+# Connect to ScyllaDB cluster from containerrunning on scyllau-net network
+# notice you don't have to provide the process name (cqlsh) as the entrypoint
+docker run -it --rm --network scyllau-net scylladb/scylla-cqlsh -e 'DESCRIBE CLUSTER' scyllaU1 9042 # --help
+
+# connect from the host
+docker run -it --rm --network host scylladb/scylla-cqlsh -e 'DESCRIBE CLUSTER' localhost 9042 # --help
