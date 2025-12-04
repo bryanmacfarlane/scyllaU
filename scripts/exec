@@ -1,19 +1,22 @@
-#!/bin/env bash
+#!/bin/bash
+
 set -eou pipefail 
 
-SCYLLA_NAME=scyllaU1
+# Execute a statement from the host against the ScyllaDB cluster
+# Usage: ./scripts/exec <statement> [host [port]]
 
-echo
-echo "Status:"
-nodetool status 
-echo 
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPTS_DIR}/util"
 
+function help() {
+  echo "Usage: $0 \"<statement>\" [host [port]]"
+  exit 1
+}
 
-FILE=$1
-[ -n "$FILE" ] || (echo "specify actions (file) as first arg" && exit 1)
-FILE_PATH="/scripts/${FILE}.cql"
+STATEMENT=${1:-}
+[ -n "$STATEMENT" ] || (help)
 
-echo
-echo "Running ${FILE_PATH} on ${SCYLLA_NAME} ..."
+HOST=${2:-localhost}
+PORT=${3:-9042}
 
-cqlsh -f "${FILE_PATH}" "${SCYLLA_NAME}"
+docker run -it --rm --network host scylladb/scylla-cqlsh -e "${STATEMENT}" "$HOST" "$PORT" # --help

@@ -103,7 +103,9 @@ test() {
         nc -zv 127.0.0.1 9042
     fi
 
-    docker exec -it "${SCYLLA_NAME}1" bash -c "echo \"SELECT host_id FROM system.local;QUIT;\" | cqlsh"
+    ${SCRIPTS_DIR}/exec "DESCRIBE CLUSTER"
+
+    ${SCRIPTS_DIR}/exec "SELECT host_id FROM system.local;QUIT;"
 }
 
 up() {

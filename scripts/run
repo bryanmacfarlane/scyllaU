@@ -1,35 +1,31 @@
 #!/bin/bash 
 
+set -euo pipefail
+
 # Run
 # Run a script from the host against the ScyllaDB cluster
 # Usage: ./scripts/run <script-name-without-extension>
-
-set -euo pipefail
-
-function fail() {
-    echo "❌ $1" >&2
-    exit 1
-}
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPTS_DIR}/util"
 
 function help() {
-  echo "Usage: $0 [options]"
-  echo "Options:"
-  echo "  -h                     Display this help message."
-  echo "  -a [up|down]           Action to perform (bring up/down db)."
-  echo "  -i                     Run initialization (done by default when bringing datastore up)."
+  echo "Usage: $0 <cql-script-without-extension> [host [port]]"
   exit 1
 }
 
-# Connect to ScyllaDB cluster from containerrunning on scyllau-net network
-# notice you don't have to provide the process name (cqlsh) as the entrypoint
-docker run -it --rm --network scyllau-net scylladb/scylla-cqlsh -e 'DESCRIBE CLUSTER' scyllaU1 9042 # --help
-
 FILE=$1
 [ -n "$FILE" ] || (fail "specify file as first arg")
-FILE_PATH="/scripts/${FILE}.cql"
+FILE_PATH="${SCRIPTS_DIR}/${FILE}.cql"
+
+if [ ! -f "$FILE_PATH" ]; then
+  fail "file ${FILE_PATH} does not exist"
+fi
+
+HOST=${2:-localhost}
+PORT=${3:-9042}
 
 echo
-echo "Running ${FILE_PATH} on ${SCYLLA_NAME} ..."
+echo "Running ${FILE_PATH} on ${HOST}:${PORT} ..."
 
-# connect from the host
-docker run -it --rm --network host scylladb/scylla-cqlsh -e 'DESCRIBE CLUSTER' localhost 9042 # --help
+# run from the host
+docker run -it --rm -v "${FILE_PATH}:/scripts/${FILE}.cql" --network host scylladb/scylla-cqlsh -f "/scripts/${FILE}.cql" "$HOST" "$PORT" 

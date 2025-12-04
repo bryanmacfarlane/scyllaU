@@ -1,0 +1,9 @@
+#!/bin/bash 
+
+# help
+# displays help information for the ScyllaDB cqlsh client
+# Usage: ./scripts/help
+
+set -euo pipefail
+
+docker run -it --rm --network host scylladb/scylla-cqlsh --help
