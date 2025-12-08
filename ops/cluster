@@ -4,7 +4,7 @@ set -eou pipefail
 OPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$(realpath "${OPS_DIR}/../scripts")"
 
-# For Development, Use --reactor-backend=epoll: For development environments on macOS, consider using the –reactor-backend=epoll option when starting ScyllaDB in Docker. This can be necessary because the default linux-aio backend might not function as expected on macOS
+# For development environments on macOS, consider using the –reactor-backend=epoll option when starting ScyllaDB in Docker. This can be necessary because the default linux-aio backend might not function as expected on macOS
 # https://docs.scylladb.com/manual/stable/operating-scylla/procedures/tips/best-practices-scylla-on-docker.html
 # https://hub.docker.com/r/scylladb/scylla
 
