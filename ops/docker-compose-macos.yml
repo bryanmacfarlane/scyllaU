@@ -4,7 +4,7 @@ services:
     image: scylladb/scylla:latest
     container_name: scylla-node1
     hostname: scylla-node1
-    command: --platform linux/arm64/v8 --seeds=scylla-node1 --smp 1 --developer-mode 1
+    command: --platform linux/arm64/v8 --smp 1 --developer-mode 1
     ports:
       - 9100:9100 # Node Exporter
       - 9180:9180 # Scylla Metrics
