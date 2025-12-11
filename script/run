@@ -1,0 +1,34 @@
+#!/bin/bash 
+
+set -euo pipefail
+
+# Run
+# Run a script from the host against the ScyllaDB cluster
+# Usage: ./scripts/run <script-name-without-extension>
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPTS_DIR}/util"
+
+CQL_DIR="${SCRIPTS_DIR}/../cql"
+CQL_DIR=$(realpath "$CQL_DIR")
+
+function help() {
+  echo "Usage: $0 <cql-script-without-extension> [host [port]]"
+  exit 1
+}
+
+FILE=$1
+[ -n "$FILE" ] || (fail "specify file as first arg")
+FILE_PATH="${CQL_DIR}/${FILE}.cql"
+
+if [ ! -f "$FILE_PATH" ]; then
+  fail "file ${FILE_PATH} does not exist"
+fi
+
+HOST=${2:-localhost}
+PORT=${3:-9042}
+
+echo
+echo "Running ${FILE_PATH} on ${HOST}:${PORT} ..."
+
+# run from the host
+docker run -it --rm -v "${FILE_PATH}:/scripts/${FILE}.cql" --network host scylladb/scylla-cqlsh -f "/scripts/${FILE}.cql" "$HOST" "$PORT" 

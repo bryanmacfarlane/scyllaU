@@ -1,12 +1,23 @@
 #!/bin/bash
 set -eou pipefail
 
+# DEPRECATED script/cluster
+# Use ops/compose instead
+
 OPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$(realpath "${OPS_DIR}/../scripts")"
 
-# For Development, Use --reactor-backend=epoll: For development environments on macOS, consider using the –reactor-backend=epoll option when starting ScyllaDB in Docker. This can be necessary because the default linux-aio backend might not function as expected on macOS
+# For development environments on macOS, consider using the –reactor-backend=epoll option when starting ScyllaDB in Docker. This can be necessary because the default linux-aio backend might not function as expected on macOS
 # https://docs.scylladb.com/manual/stable/operating-scylla/procedures/tips/best-practices-scylla-on-docker.html
 # https://hub.docker.com/r/scylladb/scylla
+
+# https://forums.docker.com/t/how-to-turn-off-the-whats-new-message/140860/7
+export DOCKER_CLI_HINTS=false
+
+echo "docker system usage"  
+# if full run 'docker system prune -a' to free space"
+# docker system prune --volumes
+docker system df --format json | jq '.Reclaimable'
 
 SCYLLA_NAME=scyllaU
 SCYLLA_BACKEND=default
@@ -69,24 +80,36 @@ waitForNode() {
 }
 
 run() {
-    echo "i=$i"
     [ -z "$1" ] && ( echo "Need node number" && exit 1)
 
     HOST_PORT=$((9041+i))
     CURR_NAME="$1"
-    SEED_IP="${2:-}"
+    SEED="${2:-}"
     echo "creating node ${CURR_NAME}"
     echo "  host port: ${HOST_PORT}"
     echo "  backend: ${SCYLLA_BACKEND}"
     echo "  platform: ${DOCKER_PLATFORM}"
     echo "  network: ${DOCKER_NETWORK}"
-    if [ -z "${SEED_IP}" ]; then
+    if [ -z "${SEED}" ]; then
         # the first node
-        docker run -p ${HOST_PORT}:9042 --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -v "${SCRIPTS_DIR}:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}"
-        # docker run --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -h "$CURR_NAME" -v "$(pwd)/scripts:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}" #--overprovisioned 1 --smp 1
+        echo  "docker run -p ${HOST_PORT}:9042 --platform \"${DOCKER_PLATFORM}\" --network \"${DOCKER_NETWORK}\" --name \"${CURR_NAME}\" -h \"$CURR_NAME\" -d scylladb/scylla --reactor-backend=\"${SCYLLA_BACKEND}\" --developer-mode 1 --overprovisioned 1 --smp 1"
+        docker run -p ${HOST_PORT}:9042 \
+                   --platform "${DOCKER_PLATFORM}" \
+                   --network "${DOCKER_NETWORK}" \
+                   --name "${CURR_NAME}" -h "$CURR_NAME" -d \
+                   scylladb/scylla \
+                   --reactor-backend="${SCYLLA_BACKEND}" \
+                   --developer-mode 1 --overprovisioned 1 --smp 1
     else
-        echo "  seeds: ${SEED_IP}"
-        docker run --platform "${DOCKER_PLATFORM}" --network "${DOCKER_NETWORK}" --name "${CURR_NAME}" -h "$CURR_NAME" -v "${SCRIPTS_DIR}:/scripts" -d scylladb/scylla --reactor-backend="${SCYLLA_BACKEND}" --seeds="${SEED_IP}" #--overprovisioned 1 --smp 1
+        echo "  seeds: ${SEED}"
+        docker run -p ${HOST_PORT}:9042 \
+                   --platform "${DOCKER_PLATFORM}" \
+                   --network "${DOCKER_NETWORK}" \
+                   --name "${CURR_NAME}" -h "$CURR_NAME" -d \
+                   scylladb/scylla \
+                   --reactor-backend="${SCYLLA_BACKEND}" \
+                   --developer-mode 1 --overprovisioned 1 --smp 1 \
+                   --seeds="${SEED}"
     fi
 
     checkNode "${CURR_NAME}"
@@ -100,9 +123,12 @@ test() {
         nc -zv 127.0.0.1 9042
     fi
 
-    docker exec -it "${SCYLLA_NAME}1" bash -c "echo \"SELECT host_id FROM system.local;QUIT;\" | cqlsh"
+    ${SCRIPTS_DIR}/exec "DESCRIBE CLUSTER"
+
+    ${SCRIPTS_DIR}/exec "SELECT host_id FROM system.local;QUIT;"
 }
 
+# docker-compose -f ops/docker-compose-macos.yml up -d
 up() {
     down
     echo
@@ -127,7 +153,6 @@ up() {
         if [ "$i" -eq 1 ]; then
             run "$CURR_NAME"
         else
-            echo "test"
             run "$CURR_NAME" "${SCYLLA_NAME}1" #"${NODE1_IP}"
         fi
     done

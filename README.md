@@ -20,41 +20,52 @@ Scripts and files used while going through Scylla University free training.  The
 Create a three node cluster
 
 ```bash
-$ ops/cluster up
+$ script/compose up
 ```
 
 Stop the cluster
 
 ```bash
-$ ops/cluster down
+$ script/compose down
 ```
 
 Jump into a cql shell
 
 ```bash
-$ ops/cluster cqlsh
+$ script/compose cqlsh
 ...
 cqlsh>
 ```
 
-Jump into a bash shell
+## Execute Command 
+
+scripts/exec "\<command\>"
 
 ```bash
-ops/cluster bash
-bash-5.1$
+$ script/exec "DESCRIBE CLUSTER"
+
+Cluster: 
+Partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+Snitch: SimpleSnitch
 ```
 
-#### Create the schema
+## Run A Script
 
-From a bash shell inside a node 
+Runs a cql in the cql directory.  
+
+script/run <file_without_cql_extension>
+
+For example, to run the create.cql script ...
 
 ```bash
-root@scyllaU1:/# scripts/exec create
+$ script/run create             
 
-Running /scripts/create.cql on scyllaU1 ...
+Running /Users/bryan/Study/scyllaU/scripts/create.cql on localhost:9042 ...
 
-system_auth    system_distributed  system_traces                  mykeyspace
-system_schema  system              system_distributed_everywhere
+...
+
+mykeyspace  system_auth         system_distributed_everywhere  system_schema
+system      system_distributed  system_replicated_keys         system_traces
 
 
  user_id | fname | lname
@@ -63,6 +74,4 @@ system_schema  system              system_distributed_everywhere
        4 |  rust |   cohle
 
 (2 rows)
-root@scyllaU1:/# exit
-exit
 ```

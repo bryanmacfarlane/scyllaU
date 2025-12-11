@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -eou pipefail 
+
+# Execute a statement from the host against the ScyllaDB cluster
+# Usage: ./scripts/exec <statement> [host [port]]
+
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPTS_DIR}/util"
+
+function help() {
+  echo "Usage: $0 \"<statement>\" [host [port]]"
+  exit 1
+}
+
+STATEMENT=${1:-}
+[ -n "$STATEMENT" ] || (help)
+
+HOST=${2:-localhost}
+PORT=${3:-9042}
+
+docker run -it --rm --network host scylladb/scylla-cqlsh -e "${STATEMENT}" "$HOST" "$PORT" # --help
