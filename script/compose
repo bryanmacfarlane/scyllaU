@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPTS_DIR}/util"
+
 # https://forums.docker.com/t/how-to-turn-off-the-whats-new-message/140860/7
 export DOCKER_CLI_HINTS=false
 
@@ -28,9 +31,10 @@ up() {
     echo "Bringing up ScyllaDB cluster ..."
     echo
 
-    docker-compose -f ops/compose.yml up -d --wait
+    docker-compose -f "${SCRIPTS_DIR}/compose.yml" up -d --wait
 
-    scripts/exec "DESCRIBE CLUSTER"
+    "${SCRIPTS_DIR}/exec" "DESCRIBE CLUSTER"
+
     # scripts/exec "SELECT host_id FROM system.local;QUIT;"
     docker exec -it "scylla-node1" nodetool status
     echo 
@@ -42,7 +46,7 @@ down() {
     echo
 
     # -v prunes the compose anonymous volumes
-    docker-compose -f ops/compose.yml down -v
+    docker-compose -f "${SCRIPTS_DIR}/compose.yml" down -v
     echo 
 }
 

@@ -8,6 +8,9 @@ set -euo pipefail
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "${SCRIPTS_DIR}/util"
 
+CQL_DIR="${SCRIPTS_DIR}/../cql"
+CQL_DIR=$(realpath "$CQL_DIR")
+
 function help() {
   echo "Usage: $0 <cql-script-without-extension> [host [port]]"
   exit 1
@@ -15,7 +18,7 @@ function help() {
 
 FILE=$1
 [ -n "$FILE" ] || (fail "specify file as first arg")
-FILE_PATH="${SCRIPTS_DIR}/${FILE}.cql"
+FILE_PATH="${CQL_DIR}/${FILE}.cql"
 
 if [ ! -f "$FILE_PATH" ]; then
   fail "file ${FILE_PATH} does not exist"

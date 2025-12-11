@@ -1,6 +1,9 @@
 #!/bin/bash
 set -eou pipefail
 
+# DEPRECATED script/cluster
+# Use ops/compose instead
+
 OPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$(realpath "${OPS_DIR}/../scripts")"
 

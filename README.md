@@ -20,19 +20,19 @@ Scripts and files used while going through Scylla University free training.  The
 Create a three node cluster
 
 ```bash
-$ ops/compose up
+$ script/compose up
 ```
 
 Stop the cluster
 
 ```bash
-$ ops/compose down
+$ script/compose down
 ```
 
 Jump into a cql shell
 
 ```bash
-$ ops/compose cqlsh
+$ script/compose cqlsh
 ...
 cqlsh>
 ```
@@ -50,6 +50,8 @@ Snitch: SimpleSnitch
 ```
 
 ## Run A Script
+
+Runs a cql in the cql directory.  
 
 script/run <file_without_cql_extension>
 
