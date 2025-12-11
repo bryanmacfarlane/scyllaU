@@ -1,30 +1,45 @@
-version: '3.8'
 services:
   scylla-node1:
     image: scylladb/scylla:latest
     container_name: scylla-node1
     hostname: scylla-node1
-    command: --platform linux/arm64/v8 --smp 1 --developer-mode 1
+    platform: linux/arm64/v8
+    command: --reactor-backend="epoll" --smp 1 --developer-mode 1 #--overprovisioned 1
     ports:
-      - 9100:9100 # Node Exporter
-      - 9180:9180 # Scylla Metrics
-      - 9042:9042 # Use this port for the Cassandra native protocol
-      - 9160:9160 # Use this port for the thrift protocol
-      - 7199:7199 # Use this port for JMX
+      - 9042:9042 # Use this port for the Cassandra native protocol ( cli uses )
+      # - 9100:9100 # Node Exporter
+      # - 9180:9180 # Scylla Metrics
+      # - 9160:9160 # Use this port for the thrift protocol
+      # - 7199:7199 # Use this port for JMX
     volumes:
       - scylla_data1:/var/lib/scylla
     networks:
       - scylla-net
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh --no-color --debug --request-timeout=5 -e 'SELECT cluster_name FROM system.local' scylla-node1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   scylla-node2:
     image: scylladb/scylla:latest
     container_name: scylla-node2
     hostname: scylla-node2
-    command: --platform linux/arm64/v8 --seeds=scylla-node1 --smp 1 --developer-mode 1
+    platform: linux/arm64/v8
+    command: --seeds=scylla-node1 --reactor-backend="epoll" --smp 1 --developer-mode 1 #--overprovisioned 1
+    ports:
+      - 9043:9042 # Use this port for the Cassandra native protocol ( cli uses )    
     volumes:
       - scylla_data2:/var/lib/scylla
     networks:
       - scylla-net
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh --no-color --debug --request-timeout=5 -e 'SELECT cluster_name FROM system.local' scylla-node2"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s      
     depends_on:
       - scylla-node1
 
@@ -32,11 +47,20 @@ services:
     image: scylladb/scylla:latest
     container_name: scylla-node3
     hostname: scylla-node3
-    command: --platform linux/arm64/v8 --seeds=scylla-node1 --smp 1 --developer-mode 1
+    platform: linux/arm64/v8
+    command: --seeds=scylla-node1 --reactor-backend="epoll" --smp 1 --developer-mode 1 #--overprovisioned 1
+    ports:
+      - 9044:9042 # Use this port for the Cassandra native protocol ( cli uses )    
     volumes:
       - scylla_data3:/var/lib/scylla
     networks:
       - scylla-net
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh --no-color --debug --request-timeout=5 -e 'SELECT cluster_name FROM system.local' scylla-node3"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s      
     depends_on:
       - scylla-node1
 

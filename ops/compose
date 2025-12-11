@@ -1,0 +1,76 @@
+#!/bin/bash 
+
+set -euo pipefail
+
+# https://forums.docker.com/t/how-to-turn-off-the-whats-new-message/140860/7
+export DOCKER_CLI_HINTS=false
+
+usage() {
+    echo "docker system usage"  
+    # if full run 'docker system prune -a' to free space"
+    # docker system prune --volumes
+    docker system df # --format json | jq '.Reclaimable'
+}
+
+up() {
+    echo 
+    echo "Bringing up ScyllaDB cluster ..."
+    echo
+
+    docker-compose -f ops/docker-compose-macos.yml up -d --wait
+
+    scripts/exec "DESCRIBE CLUSTER"
+    # scripts/exec "SELECT host_id FROM system.local;QUIT;"
+    docker exec -it "scylla-node1" nodetool status
+    echo 
+}
+
+down() {
+    echo 
+    echo "Bringing down ScyllaDB cluster ..."
+    echo
+
+    # -v prunes the compose anonymous volumes
+    docker-compose -f ops/docker-compose-macos.yml down -v
+    echo 
+}
+
+cqlsh() {
+    docker exec -it scylla-node1 cqlsh
+}
+
+help() {
+    echo
+    echo "Usage: $0 <up|down|cqlsh|usage|help>"
+    echo
+    echo "  up       - Bring up ScyllaDB cluster"
+    echo "  down     - Bring down ScyllaDB cluster"
+    echo "  cqlsh    - Open cqlsh shell to the cluster"
+    echo "  usage    - Show docker system usage"
+    echo "  help     - Show this help message"
+    echo
+}
+
+action=${1:-}
+if [ -z "$action" ]; then
+    help
+    exit 1
+fi
+
+case $action in
+  up)
+    up
+  ;;
+  down)
+    down
+  ;;
+  cqlsh)
+    cqlsh
+  ;;
+  usage)
+    usage
+  ;;
+  help)
+    help
+  ;;
+esac

@@ -11,6 +11,11 @@ SCRIPTS_DIR="$(realpath "${OPS_DIR}/../scripts")"
 # https://forums.docker.com/t/how-to-turn-off-the-whats-new-message/140860/7
 export DOCKER_CLI_HINTS=false
 
+echo "docker system usage"  
+# if full run 'docker system prune -a' to free space"
+# docker system prune --volumes
+docker system df --format json | jq '.Reclaimable'
+
 SCYLLA_NAME=scyllaU
 SCYLLA_BACKEND=default
 DOCKER_PLATFORM="linux/amd64"
@@ -84,6 +89,7 @@ run() {
     echo "  network: ${DOCKER_NETWORK}"
     if [ -z "${SEED}" ]; then
         # the first node
+        echo  "docker run -p ${HOST_PORT}:9042 --platform \"${DOCKER_PLATFORM}\" --network \"${DOCKER_NETWORK}\" --name \"${CURR_NAME}\" -h \"$CURR_NAME\" -d scylladb/scylla --reactor-backend=\"${SCYLLA_BACKEND}\" --developer-mode 1 --overprovisioned 1 --smp 1"
         docker run -p ${HOST_PORT}:9042 \
                    --platform "${DOCKER_PLATFORM}" \
                    --network "${DOCKER_NETWORK}" \
@@ -119,6 +125,7 @@ test() {
     ${SCRIPTS_DIR}/exec "SELECT host_id FROM system.local;QUIT;"
 }
 
+# docker-compose -f ops/docker-compose-macos.yml up -d
 up() {
     down
     echo
