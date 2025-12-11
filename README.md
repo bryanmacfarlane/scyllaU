@@ -42,7 +42,7 @@ cqlsh>
 scripts/exec "\<command\>"
 
 ```bash
-$ scripts/exec "DESCRIBE CLUSTER"
+$ script/exec "DESCRIBE CLUSTER"
 
 Cluster: 
 Partitioner: org.apache.cassandra.dht.Murmur3Partitioner
@@ -51,12 +51,12 @@ Snitch: SimpleSnitch
 
 ## Run A Script
 
-scripts/run <file_without_cql_extension>
+script/run <file_without_cql_extension>
 
 For example, to run the create.cql script ...
 
 ```bash
-$ scripts/run create             
+$ script/run create             
 
 Running /Users/bryan/Study/scyllaU/scripts/create.cql on localhost:9042 ...
 
