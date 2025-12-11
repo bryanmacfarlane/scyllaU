@@ -5,6 +5,18 @@ set -euo pipefail
 # https://forums.docker.com/t/how-to-turn-off-the-whats-new-message/140860/7
 export DOCKER_CLI_HINTS=false
 
+export SCYLLA_BACKEND=default
+export DOCKER_PLATFORM="linux/amd64"
+
+if [ "$(uname)" == "Darwin" ]; then
+    SCYLLA_BACKEND=epoll
+    DOCKER_PLATFORM="linux/arm64/v8"
+fi
+
+echo
+echo "Using ScyllaDB backend: ${SCYLLA_BACKEND} on platform: ${DOCKER_PLATFORM}"
+echo
+
 usage() {
     echo "docker system usage"  
     # if full run 'docker system prune -a' to free space"
@@ -17,7 +29,7 @@ up() {
     echo "Bringing up ScyllaDB cluster ..."
     echo
 
-    docker-compose -f ops/docker-compose-macos.yml up -d --wait
+    docker-compose -f ops/compose.yml up -d --wait
 
     scripts/exec "DESCRIBE CLUSTER"
     # scripts/exec "SELECT host_id FROM system.local;QUIT;"
@@ -31,7 +43,7 @@ down() {
     echo
 
     # -v prunes the compose anonymous volumes
-    docker-compose -f ops/docker-compose-macos.yml down -v
+    docker-compose -f ops/compose.yml down -v
     echo 
 }
 

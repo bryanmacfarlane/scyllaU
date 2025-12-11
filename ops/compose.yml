@@ -3,8 +3,8 @@ services:
     image: scylladb/scylla:latest
     container_name: scylla-node1
     hostname: scylla-node1
-    platform: linux/arm64/v8
-    command: --reactor-backend="epoll" --smp 1 --developer-mode 1 #--overprovisioned 1
+    platform: ${DOCKER_PLATFORM}
+    command: --reactor-backend="${SCYLLA_BACKEND}" --smp 1 --developer-mode 1 #--overprovisioned 1
     ports:
       - 9042:9042 # Use this port for the Cassandra native protocol ( cli uses )
       # - 9100:9100 # Node Exporter
@@ -26,8 +26,8 @@ services:
     image: scylladb/scylla:latest
     container_name: scylla-node2
     hostname: scylla-node2
-    platform: linux/arm64/v8
-    command: --seeds=scylla-node1 --reactor-backend="epoll" --smp 1 --developer-mode 1 #--overprovisioned 1
+    platform: ${DOCKER_PLATFORM}
+    command: --seeds=scylla-node1 --reactor-backend="${SCYLLA_BACKEND}" --smp 1 --developer-mode 1 #--overprovisioned 1
     ports:
       - 9043:9042 # Use this port for the Cassandra native protocol ( cli uses )    
     volumes:
@@ -47,8 +47,8 @@ services:
     image: scylladb/scylla:latest
     container_name: scylla-node3
     hostname: scylla-node3
-    platform: linux/arm64/v8
-    command: --seeds=scylla-node1 --reactor-backend="epoll" --smp 1 --developer-mode 1 #--overprovisioned 1
+    platform: ${DOCKER_PLATFORM}
+    command: --seeds=scylla-node1 --reactor-backend="${SCYLLA_BACKEND}" --smp 1 --developer-mode 1 #--overprovisioned 1
     ports:
       - 9044:9042 # Use this port for the Cassandra native protocol ( cli uses )    
     volumes:
