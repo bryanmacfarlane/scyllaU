@@ -19,8 +19,7 @@ echo
 
 usage() {
     echo "docker system usage"  
-    # if full run 'docker system prune -a' to free space"
-    # docker system prune --volumes
+    # if full run ops/prune
     docker system df # --format json | jq '.Reclaimable'
 }
 
